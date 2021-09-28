@@ -1,8 +1,38 @@
-apiVersion: v1
-kind: Pod
+---
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: OrigoAPI
+  name: origo-demo
+  labels:
+    origo: api
 spec:
-  containers:
-    - name: apiserver
-      image:
+  replicas: 3
+  selector:
+    matchLabels:
+      origo: api
+  template:
+    metadata:
+      labels:
+        origo: api
+    spec:
+      containers:
+      - name: origo-oppgave1
+        image: kmoberg/origo-oppgave1
+        ports:
+          - containerPort: 5000
+        env:
+          - name: API_URL
+            value: https://gbfs.urbansharing.com/oslobysykkel.no/station_information.json
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: origo-api
+spec:
+  type: LoadBalancer
+  selector:
+    origo: api
+  ports:
+  - port: 5000
+    protocol: TCP
+    targetPort: 5000
